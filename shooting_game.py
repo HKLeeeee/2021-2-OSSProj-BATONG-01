@@ -74,34 +74,55 @@ def main():
     # Initialize everything
     pygame.mixer.pre_init(11025, -16, 2, 512)
     pygame.init()
-    screen = pygame.display.set_mode((500, 500), pygame.RESIZABLE)
+    width, height = 500, 500
+    min_size = 500
+    screen = pygame.display.set_mode((width, height), pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
     pygame.display.set_caption('Shooting Game')
     pygame.mouse.set_visible(0)
     language_check = language.get_language()  ######### False면 영어, True면 한국어
     select_mode = mode.get_mode() ###1: easy, 2: normal, 3: hard ### default : normal
-
-# Create the background which will scroll and loop over a set of different
-# size stars
-    background = pygame.Surface((screen.get_width(), screen.get_height()*4))
+    ismoving = False
+    background = pygame.Surface((width, height*4))
     background = background.convert()
     background.fill(BLACK)
-    backgroundLoc = 1500
+    backgroundLoc = height*3
     finalStars = deque()
-    for y in range(0, 1500, 30):
+    for y in range(0, backgroundLoc, 30):
         size = random.randint(2, 5)
-        x = random.randint(0, 500 - size)
+        x = random.randint(0, width - size)
         if y <= 500:
-            finalStars.appendleft((x, y + 1500, size))
+            finalStars.appendleft((x, y + backgroundLoc, size))
         pygame.draw.rect(
             background, (255, 255, 0), pygame.Rect(x, y, size, size))
     while finalStars:
         x, y, size = finalStars.pop()
         pygame.draw.rect(
             background, (255, 255, 0), pygame.Rect(x, y, size, size))
+    
+    
+    def update_background(width, height) :
+        # Create the background which will scroll and loop over a set of different
+        # size stars
+        background = pygame.Surface((width, height*4))
+        background = background.convert()
+        background.fill(BLACK)
+        backgroundLoc = height*3
+        finalStars = deque()
+        for y in range(0, backgroundLoc, 30):
+            size = random.randint(2, 5)
+            x = random.randint(0, width - size)
+            if y <= 500:
+                finalStars.appendleft((x, y + backgroundLoc, size))
+            pygame.draw.rect(
+                background, (255, 255, 0), pygame.Rect(x, y, size, size))
+        while finalStars:
+            x, y, size = finalStars.pop()
+            pygame.draw.rect(
+                background, (255, 255, 0), pygame.Rect(x, y, size, size))
 
-# Display the background
-    screen.blit(background, (0, 0))
-    pygame.display.flip()
+    # Display the background
+        screen.blit(background, (0, 0))
+        pygame.display.flip()
 
 #################### Prepare game objects ###########################
     speed = 1.5
@@ -261,17 +282,58 @@ def main():
     if music and pygame.mixer:
         pygame.mixer.music.play(loops=-1)
 
+    def update_pos(titleRect) :
+        titleRect.midtop = screen.get_rect().inflate(0, height*(-0.25)).midtop
+        titleRect = title.get_rect()
+        startPos = startText.get_rect(midtop=titleRect.inflate(0, 50).midbottom)
+        resumePos = resumeText.get_rect(midtop=titleRect.inflate(0, 50).midbottom) # 일시정지 메뉴 pos
+        hiScorePos = hiScoreText.get_rect(topleft=startPos.bottomleft)
+        fxPos = fxText.get_rect(topleft=hiScorePos.bottomleft)
+        fxOnPos = fxOnText.get_rect(topleft=fxPos.topright)
+        fxOffPos = fxOffText.get_rect(topleft=fxPos.topright)
+        musicPos = fxText.get_rect(topleft=fxPos.bottomleft)
+        musicOnPos = musicOnText.get_rect(topleft=musicPos.topright)
+        musicOffPos = musicOffText.get_rect(topleft=musicPos.topright)
+        modePos = modeText.get_rect(topleft=musicPos.bottomleft) ############
+        quitPos = quitText.get_rect(topleft=modePos.bottomleft)
+        quitPos_pause = modeText.get_rect(topleft=musicPos.bottomleft) # 일시정지 메뉴 quitPos
+        selectPos = selectText.get_rect(topright=startPos.topleft)
+        selectPos_pause = selectText.get_rect(topright=resumePos.topleft) #일시정지 메뉴 selectPos
+        languagePos = languageText.get_rect(topleft=quitPos.bottomleft)  ###############################
+        languagePos_pause = languageText.get_rect(topleft=quitPos_pause.bottomleft) # 일시정지 메뉴 languagePos
+        change_shipPos = change_shipText.get_rect(topleft=languagePos.bottomleft)
+        ship_selectPos = ship_selectText.get_rect(midbottom=ship_menuDict[ship_selection.get_ship_selection()].inflate(0,60).midbottom)
+        selectPos = selectText.get_rect(topright=menuDict[selection].topleft)
+        highScorePos = [highScoreTexts[0].get_rect(
+                    topleft=screen.get_rect().inflate(height*(-0.2), height*(-0.2)).topleft),
+                    highScoreTexts[1].get_rect(
+                    midtop=screen.get_rect().inflate(height*(-0.2), height*(-0.2)).midtop),
+                    highScoreTexts[2].get_rect(
+                    topright=screen.get_rect().inflate(height*(-0.2), height*(-0.2)).topright)]
+        ship1Rect.bottomleft = screen.get_rect().inflate(-112, -300).bottomleft
+        ship2Rect.bottomleft = screen.get_rect().inflate(-337, -290).bottomleft 
+        ship4Rect.bottomleft = screen.get_rect().inflate(-787, -300).bottomleft
+        shipCoinRect.bottomleft = screen.get_rect().inflate(-112, -100).bottomleft  
+        ship1Pos = ship1Text.get_rect(midbottom=ship1Rect.inflate(0, 0).midbottom)
+        ship2Pos = ship2Text.get_rect(midbottom=ship2Rect.inflate(0, 0).midbottom)
+        ship3Pos = ship3Text.get_rect(midbottom=ship3Rect.inflate(0, 0).midbottom)
+        ship4Pos = ship4Text.get_rect(midbottom=ship4Rect.inflate(0, 0).midbottom)
+        ship_selectPos = ship_selectText.get_rect(midbottom=ship1Rect.inflate(0, 60).midbottom)
+        shipUI_coinPos = shipUI_coinText.get_rect(midbottom=ship1Rect.inflate(0, 200).midbottom)
+        shipUnlockPos = ship4Text.get_rect(midbottom=ship3Rect.inflate(0, 200).midbottom)
+    
+    
     ################################# 메뉴 화면 #########################################
     while inMenu:
         clock.tick(clockTime)
 
         screen.blit(
             background, (0, 0), area=pygame.Rect(
-                0, backgroundLoc, 500, 500))
+                0, backgroundLoc, width, height))
         backgroundLoc -= speed
         if backgroundLoc - speed <= speed:
-            backgroundLoc = 1500
-
+            backgroundLoc = height*3
+    
         for event in pygame.event.get():
 
             if (event.type == pygame.QUIT):
@@ -375,6 +437,26 @@ def main():
                 or event.type == pygame.KEYDOWN
                     and event.key == pygame.K_ESCAPE):
                 return
+            elif (event.type == VIDEORESIZE) :
+                width = event.w
+                height = event.h
+
+                if width < min_size or height < min_size:  # 화면의 최소 크기
+                    height = min_size
+                if width/height != 1 : ## 1::1 비율 유지
+                    width = int((width+height)/2) ## 가로세로 사이즈의 평균으로
+                    height = int((width+height)/2)
+                screen = pygame.display.set_mode((width, height), pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
+                update_background(width, height)
+                update_pos(titleRect)
+                titleRect.midtop = screen.get_rect().inflate(0, -150).midtop
+                screen.blit(
+                    background, (0, 0), area=pygame.Rect(
+                        0, backgroundLoc, width, height))
+                backgroundLoc -= speed
+                if backgroundLoc - speed <= speed:
+                    backgroundLoc = height*3
+                pygame.display.flip()
 
      ####기체이미지 변경 창########
             elif (event.type == pygame.KEYDOWN
@@ -599,6 +681,8 @@ def main():
                         bomb_sound.play()
             elif (event.type == pygame.KEYDOWN
                     and event.key == pygame.K_p): ####### 일시정지 ######
+                ship.horiz = direction[None][0] * speed
+                ship.vert = direction[None][1] * speed
                 pauseMenu = True
                 menuDict = {1: resumePos, 2: hiScorePos, 3: fxPos, 4: musicPos, 5: quitPos_pause,
                             6: languagePos_pause}
