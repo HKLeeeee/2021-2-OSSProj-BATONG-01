@@ -71,27 +71,33 @@ ship_selection = Ship_selection_check()
 
 ###############  MAIN ###############################################
 def main():
+
+    class size :
+        width, height = 500, 500
+        min_size = 500
+        background = width * 4
+        backgroundLoc = height*3
+        
     # Initialize everything
     pygame.mixer.pre_init(11025, -16, 2, 512)
     pygame.init()
-    width, height = 500, 500
-    min_size = 500
-    screen = pygame.display.set_mode((width, height), pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
+    
+    screen = pygame.display.set_mode((size.width, size.height), pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
     pygame.display.set_caption('Shooting Game')
     pygame.mouse.set_visible(0)
     language_check = language.get_language()  ######### False면 영어, True면 한국어
     select_mode = mode.get_mode() ###1: easy, 2: normal, 3: hard ### default : normal
     ismoving = False
-    background = pygame.Surface((width, height*4))
+    background = pygame.Surface((size.width, size.height*4))
     background = background.convert()
     background.fill(BLACK)
-    backgroundLoc = height*3
+    backgroundLoc = size.backgroundLoc
     finalStars = deque()
-    for y in range(0, backgroundLoc, 30):
+    for y in range(0, size.backgroundLoc, 30):
         size = random.randint(2, 5)
-        x = random.randint(0, width - size)
+        x = random.randint(0, size.width - size)
         if y <= 500:
-            finalStars.appendleft((x, y + backgroundLoc, size))
+            finalStars.appendleft((x, y + size.backgroundLoc, size))
         pygame.draw.rect(
             background, (255, 255, 0), pygame.Rect(x, y, size, size))
     while finalStars:
@@ -100,26 +106,7 @@ def main():
             background, (255, 255, 0), pygame.Rect(x, y, size, size))
     
     
-    def update_background(width, height) :
-        # Create the background which will scroll and loop over a set of different
-        # size stars
-        background = pygame.Surface((width, height*4))
-        background = background.convert()
-        background.fill(BLACK)
-        backgroundLoc = height*3
-        finalStars = deque()
-        for y in range(0, backgroundLoc, 30):
-            size = random.randint(2, 5)
-            x = random.randint(0, width - size)
-            if y <= 500:
-                finalStars.appendleft((x, y + backgroundLoc, size))
-            pygame.draw.rect(
-                background, (255, 255, 0), pygame.Rect(x, y, size, size))
-        while finalStars:
-            x, y, size = finalStars.pop()
-            pygame.draw.rect(
-                background, (255, 255, 0), pygame.Rect(x, y, size, size))
-
+   
     # Display the background
         screen.blit(background, (0, 0))
         pygame.display.flip()
